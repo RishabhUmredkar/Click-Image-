@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Read Text</title>
+</head>
+<body>
+    <div>
+        <h1>Text Extracted from Image</h1>
+        <p id="extractedText"></p>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const extractedText = urlParams.get('text');
+
+        // Display the extracted text on the page
+        const extractedTextElement = document.getElementById('extractedText');
+        extractedTextElement.textContent = extractedText;
+    </script>
+</body>
+</html>
