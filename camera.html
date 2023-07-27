@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Button</title>
+    <!-- Include Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #cameraArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #cameraButton, #cameraOffButton, #clickImageButton {
+            margin-top: 10px;
+            padding: 20px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #cameraOffButton, #clickImageButton {
+            display: none;
+        }
+
+        #videoStream {
+            display: none;
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #capturedImage {
+            display: none;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="cameraArea">
+        <video id="videoStream" autoplay playsinline></video>
+        <button id="cameraButton"><i class="fas fa-camera"></i>Open Camera</button>
+        <button id="cameraOffButton"><i class="fas fa-video-slash"></i>Camera Off</button>
+        <button id="clickImageButton"><i class="fas fa-camera"></i>Click Image</button>
+        <canvas id="capturedImage" width="640" height="480"></canvas>
+    </div>
+
+    <script>
+        const cameraArea = document.getElementById("cameraArea");
+        const cameraButton = document.getElementById("cameraButton");
+        const cameraOffButton = document.getElementById("cameraOffButton");
+        const clickImageButton = document.getElementById("clickImageButton");
+        const videoStream = document.getElementById("videoStream");
+        const capturedImageCanvas = document.getElementById("capturedImage");
+        const capturedImageContext = capturedImageCanvas.getContext("2d");
+        let mediaStream;
+
+        cameraButton.addEventListener("click", async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+                // Hide the "Open Camera" button and show the video stream and "Camera Off" button
+                cameraButton.style.display = "none";
+                cameraOffButton.style.display = "block";
+                clickImageButton.style.display = "block";
+                videoStream.style.display = "block";
+
+                // Attach the stream to the video element to display the camera feed
+                videoStream.srcObject = mediaStream;
+            } catch (error) {
+                console.error("Error accessing the camera: ", error);
+            }
+        });
+
+        cameraOffButton.addEventListener("click", () => {
+            // Stop the media stream and hide the video stream and buttons
+            if (mediaStream) {
+                const tracks = mediaStream.getTracks();
+                tracks.forEach((track) => track.stop());
+            }
+
+            cameraOffButton.style.display = "none";
+            clickImageButton.style.display = "none";
+            videoStream.style.display = "none";
+            capturedImageCanvas.style.display = "none";
+            cameraButton.style.display = "block";
+            cameraArea.removeChild(capturedImageCanvas);
+
+            // Redirect to the home page
+            // Replace "index.html" with the path to your home page
+            window.location.href = "index.html";
+        });
+
+        clickImageButton.addEventListener("click", () => {
+            // Capture an image from the video stream
+            capturedImageContext.drawImage(videoStream, 0, 0, capturedImageCanvas.width, capturedImageCanvas.height);
+
+            // Show the captured image
+            capturedImageCanvas.style.display = "block";
+            cameraArea.appendChild(capturedImageCanvas);
+        });
+    </script>
+</body>
+</html>
