@@ -7,6 +7,36 @@
     <!-- Include Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+       
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .night-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        #cameraArea {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 640px;
+            width: 40%;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 15px;
+            background-color: #fff;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
         body {
             display: flex;
             justify-content: center;
@@ -73,6 +103,26 @@
                 max-height: 50vh;
             }
         }
+        /* Add night mode styles */
+        #nightModeButton {
+            margin-top: 10px;
+            padding: 15px 20px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #nightModeButton:hover {
+            background-color: #0056b3;
+        }
+
+        #nightModeButton .fa-moon, #nightModeButton .fa-sun {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +140,7 @@
         <button id="cameraOffButton"><i class="fas fa-video-slash"></i>Camera Off</button>
         <button id="clickImageButton"><i class="fas fa-camera"></i>Click Image</button>
         <canvas id="capturedImage"></canvas>
+        <button id="nightModeButton"><i class="fas fa-moon"></i>Night Mode</button>
 
         <script>
             const cameraArea = document.getElementById("cameraArea");
@@ -180,6 +231,23 @@
             }
 
             clickImageButton.addEventListener("click", extractTextFromImage);
+
+            // Function to toggle night mode
+            function toggleNightMode() {
+                const body = document.body;
+                const nightModeButton = document.getElementById("nightModeButton");
+                body.classList.toggle("night-mode");
+                // Toggle night mode button icon
+                if (body.classList.contains("night-mode")) {
+                    nightModeButton.innerHTML = '<i class="fas fa-sun"></i>Day Mode';
+                } else {
+                    nightModeButton.innerHTML = '<i class="fas fa-moon"></i>Night Mode';
+                }
+            }
+
+            // Event listener for the night mode button
+            const nightModeButton = document.getElementById("nightModeButton");
+            nightModeButton.addEventListener("click", toggleNightMode);
         </script>
     </div>
 </body>
