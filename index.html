@@ -20,11 +20,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            max-width: 640px;
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 15px;
+            background-color: #fff;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        #cameraButton, #cameraOffButton, #clickImageButton {
+        #cameraButton, #cameraOffButton, #clickImageButton, #cameraSelector {
             margin-top: 10px;
-            padding: 20px;
+            padding: 15px 20px;
             font-size: 18px;
             background-color: #007bff;
             color: #fff;
@@ -40,82 +47,140 @@
         #videoStream {
             display: none;
             width: 100%;
-            height: auto;
+            max-width: 640px;
+            max-height: 480px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            transform: scaleX(-1); /* Mirror effect */
         }
 
         #capturedImage {
             display: none;
-            margin-top: 10px;
+            width: 100%;
+            max-width: 640px;
+            max-height: 480px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Media queries for smaller devices */
+        @media (max-width: 600px) {
+            #cameraArea {
+                max-width: 90%;
+            }
+            #videoStream, #capturedImage {
+                max-width: 100%;
+                max-height: 50vh;
+            }
         }
     </style>
 </head>
 <body>
     <div id="cameraArea">
+        <h1 style="margin: 0; color: #007bff;">Camera Button</h1>
+        <div>
+            <label for="cameraSelector">Select Camera:</label>
+            <select id="cameraSelector" onchange="changeCamera()">
+                <option value="user">Front Camera</option>
+                <option value="environment">Back Camera</option>
+            </select>
+        </div>
         <video id="videoStream" autoplay playsinline></video>
         <button id="cameraButton"><i class="fas fa-camera"></i>Open Camera</button>
         <button id="cameraOffButton"><i class="fas fa-video-slash"></i>Camera Off</button>
         <button id="clickImageButton"><i class="fas fa-camera"></i>Click Image</button>
-        <canvas id="capturedImage" width="640" height="480"></canvas>
+        <canvas id="capturedImage"></canvas>
+
+        <script>
+            const cameraArea = document.getElementById("cameraArea");
+            const cameraButton = document.getElementById("cameraButton");
+            const cameraOffButton = document.getElementById("cameraOffButton");
+            const clickImageButton = document.getElementById("clickImageButton");
+            const videoStream = document.getElementById("videoStream");
+            const capturedImageCanvas = document.getElementById("capturedImage");
+            const capturedImageContext = capturedImageCanvas.getContext("2d");
+            let mediaStream;
+
+            async function getMediaStream(facingMode) {
+                try {
+                    const constraints = { video: { facingMode: facingMode } };
+                    mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                    // Hide the "Open Camera" button and show the video stream and "Camera Off" button
+                    cameraButton.style.display = "none";
+                    cameraOffButton.style.display = "block";
+                    clickImageButton.style.display = "block";
+                    videoStream.style.display = "block";
+
+                    // Attach the stream to the video element to display the camera feed
+                    videoStream.srcObject = mediaStream;
+                } catch (error) {
+                    console.error("Error accessing the camera: ", error);
+                }
+            }
+
+            function changeCamera() {
+                // Stop the current media stream
+                if (mediaStream) {
+                    const tracks = mediaStream.getTracks();
+                    tracks.forEach((track) => track.stop());
+                }
+
+                const cameraSelector = document.getElementById("cameraSelector");
+                const selectedFacingMode = cameraSelector.value;
+                getMediaStream(selectedFacingMode);
+            }
+
+            cameraButton.addEventListener("click", () => {
+                getMediaStream("user"); // Start with the front camera by default
+            });
+
+            cameraOffButton.addEventListener("click", () => {
+                // Stop the media stream and hide the video stream and buttons
+                if (mediaStream) {
+                    const tracks = mediaStream.getTracks();
+                    tracks.forEach((track) => track.stop());
+                }
+
+                cameraOffButton.style.display = "none";
+                clickImageButton.style.display = "none";
+                videoStream.style.display = "none";
+                capturedImageCanvas.style.display = "none";
+                cameraButton.style.display = "block";
+                cameraArea.removeChild(capturedImageCanvas);
+            });
+
+            function extractTextFromImage() {
+                // Capture an image from the video stream
+                capturedImageContext.drawImage(videoStream, 0, 0, capturedImageCanvas.width, capturedImageCanvas.height);
+
+                // Show the captured image
+                capturedImageCanvas.style.display = "block";
+                cameraArea.appendChild(capturedImageCanvas);
+
+                // Extract text from the image using OCR (Tesseract.js)
+                Tesseract.recognize(
+                    capturedImageCanvas,
+                    "eng",
+                    { logger: info => console.log(info) } // Replace "eng" with the appropriate language code if needed
+                ).then(({ data: { text } }) => {
+                    // Read the extracted text out loud
+                    if (text.trim().length > 0) {
+                        const speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+                        speechSynthesis.speak(speechSynthesisUtterance);
+                    }
+
+                    // Save the extracted text to local storage
+                    localStorage.setItem("extractedText", text);
+
+                    // Redirect to the "read.html" page
+                    // Replace "read.html" with the path to your "read.html" page
+                    window.location.href = "read.html";
+                });
+            }
+
+            clickImageButton.addEventListener("click", extractTextFromImage);
+        </script>
     </div>
-
-    <script>
-        const cameraArea = document.getElementById("cameraArea");
-        const cameraButton = document.getElementById("cameraButton");
-        const cameraOffButton = document.getElementById("cameraOffButton");
-        const clickImageButton = document.getElementById("clickImageButton");
-        const videoStream = document.getElementById("videoStream");
-        const capturedImageCanvas = document.getElementById("capturedImage");
-        const capturedImageContext = capturedImageCanvas.getContext("2d");
-        let mediaStream;
-
-        cameraButton.addEventListener("click", async () => {
-            try {
-                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-                // Hide the "Open Camera" button and show the video stream and "Camera Off" button
-                cameraButton.style.display = "none";
-                cameraOffButton.style.display = "block";
-                clickImageButton.style.display = "block";
-                videoStream.style.display = "block";
-
-                // Attach the stream to the video element to display the camera feed
-                videoStream.srcObject = mediaStream;
-            } catch (error) {
-                console.error("Error accessing the camera: ", error);
-            }
-        });
-
-        cameraOffButton.addEventListener("click", () => {
-            // Stop the media stream and hide the video stream and buttons
-            if (mediaStream) {
-                const tracks = mediaStream.getTracks();
-                tracks.forEach((track) => track.stop());
-            }
-
-            cameraOffButton.style.display = "none";
-            clickImageButton.style.display = "none";
-            videoStream.style.display = "none";
-            capturedImageCanvas.style.display = "none";
-            cameraButton.style.display = "block";
-            cameraArea.removeChild(capturedImageCanvas);
-
-            // Redirect to the home page
-            // Replace "index.html" with the path to your home page
-            window.location.href = "index.html";
-        });
-
-        clickImageButton.addEventListener("click", () => {
-            // Capture an image from the video stream
-            capturedImageContext.drawImage(videoStream, 0, 0, capturedImageCanvas.width, capturedImageCanvas.height);
-
-            // Show the captured image
-            capturedImageCanvas.style.display = "block";
-            cameraArea.appendChild(capturedImageCanvas);
-        });
-    </script>
 </body>
 </html>

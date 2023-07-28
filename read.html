@@ -12,8 +12,8 @@
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const extractedText = urlParams.get('text');
+        // Retrieve the extracted text from local storage
+        const extractedText = localStorage.getItem("extractedText");
 
         // Display the extracted text on the page
         const extractedTextElement = document.getElementById('extractedText');
