@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chatbox {
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 600px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .user-message {
+            background-color: #0084ff;
+            color: #fff;
+            border-radius: 4px;
+            padding: 8px 12px;
+            max-width: 70%;
+            margin-bottom: 10px;
+        }
+
+        .bot-message {
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            padding: 8px 12px;
+            max-width: 70%;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            background-color: #fff;
+            width: 100%;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+
+        #userInput {
+            width: 100%;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #cameraIcon {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div class="bot-message">Welcome to ChatGPT! How can I assist you today?</div>
+    </div>
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type your message here..." autofocus>
+        <span id="cameraIcon">📷</span>
+    </div>
+
+    <script>
+        function appendUserMessage(message) {
+            const chatbox = document.getElementById('chatbox');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user-message';
+            userMessage.textContent = message;
+            chatbox.appendChild(userMessage);
+        }
+
+        function appendBotMessage(message) {
+            const chatbox = document.getElementById('chatbox');
+            const botMessage = document.createElement('div');
+            botMessage.className = 'bot-message';
+            botMessage.textContent = message;
+            chatbox.appendChild(botMessage);
+        }
+
+        function handleUserInput() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+            if (message !== '') {
+                appendUserMessage(message);
+                // You can implement your AI or chatbot logic here to generate a response
+                const botResponse = 'I received your message: ' + message;
+                appendBotMessage(botResponse);
+                userInput.value = '';
+            }
+        }
+
+        const userInput = document.getElementById('userInput');
+        userInput.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+    </script>
+</body>
+</html>
