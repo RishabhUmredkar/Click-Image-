@@ -76,7 +76,8 @@
     </div>
     <div class="input-container">
         <input type="text" id="userInput" placeholder="Type your message here..." autofocus>
-        <span id="cameraIcon">📷</span>
+        <span id="cameraIcon" onclick="openCamera()">📷</span>
+        <input type="file" accept="image/*" id="cameraInput" capture="environment" style="display: none;">
     </div>
 
     <script>
@@ -114,6 +115,28 @@
                 handleUserInput();
             }
         });
+        function openCamera() {
+            const cameraInput = document.getElementById('cameraInput');
+            cameraInput.click();
+        }
+
+        // Function to handle the selected image from the camera
+        document.getElementById('cameraInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = function () {
+                    const dataUrl = reader.result;
+                    // Handle the dataUrl (e.g., display the image)
+                    appendUserMessage('📷 Image taken: ' + dataUrl);
+                    // Implement any logic you need with the image dataUrl here
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     </script>
 </body>
 </html>
+
+
+
